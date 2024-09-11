@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 function AuthLayout({children, authentication = "true"}) {
 
     const navigate = useNavigate()
-    const [loader, setLoader] = useState(true)
+    const [loading, setLoading] = useState(true)
     const authStatus = useSelector(state => state.auth.status)
 
     useEffect(() => {
@@ -15,16 +15,16 @@ function AuthLayout({children, authentication = "true"}) {
         } else{
             navigate("/login")
         } */
-        console.log(authentication, authStatus)
+        
         if(authentication && authStatus !== authentication) {
             navigate("/login")
         } /* else if (!authentication && authStatus !== authentication){
             navigate("/")
         } */
-        setLoader(false)
+        setLoading(false)
     },[authStatus, authentication, navigate])
     
-  return loader ? <p>Loading...</p> : <>{children}</>
+  return loading ? <p>Loading...</p> : <>{children}</>
 }
 
 export default AuthLayout

@@ -1,4 +1,4 @@
-import {useCallback, useEffect} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import { useForm } from 'react-hook-form'
 import {Button, Input, Select,RTE} from '../index'
 import appwriteService  from '../../appWrite/config'
@@ -16,13 +16,16 @@ function PostForm({post}) {
         }
     })
 
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
     const navigate = useNavigate()
-    const userData = useSelector((state) => state.userData)
+    const userData = useSelector((state) => state.auth.userData)
    
     const submit = async (data) => {
-       
+       try {
         if(post){
             // edit phase
+           
             const file = data.image[0]? 
                         await appwriteService.uploadFile(data.image[0]):null
             if(file){
@@ -40,7 +43,7 @@ function PostForm({post}) {
             // new form
             const file = data.image[0]? 
                         await appwriteService.uploadFile(data.image[0]):null
-            if(file){console.log(userData)
+            if(file){
                 data.featuredImage = file.$id
                 const dbPost = await appwriteService.createPost({
                     ...data,
@@ -50,6 +53,13 @@ function PostForm({post}) {
                     navigate(`/post/${dbPost.$id}`)
                 }
             }
+        }
+
+        } catch (error) {
+            console.error(`Error creating post: ${error.message}`);
+            setError(error.message)        
+        } finally{
+            setLoading(false)
         }
     }
 
@@ -71,7 +81,14 @@ function PostForm({post}) {
 
         return () => subscription.unsubscribe()
     },[watch,slugTransform, setValue])
+
+    useEffect(() =>{
+        setError(error)
+    },[error, setError])
+
+    
   return (
+    <>{error && <p className="text-red-600 mt-8 text-center">{error}</p>}
     <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
     <div className="w-2/3 px-2">
         <Input
@@ -119,7 +136,7 @@ function PostForm({post}) {
         </Button>
     </div>
 </form>
-  )
+</>)
 }
 
 export default PostForm
