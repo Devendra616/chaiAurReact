@@ -14,7 +14,7 @@ export class Service {
     this.databases = new Databases(this.client);
   }
 
-  async createPost({ title, slug, content, featuredImage, status, userId }) {
+  async createPost({ title, slug, content, featuredImage, status, user }) {
     try {
       return await this.databases.createDocument(
         conf.appwriteDatabseId,
@@ -27,7 +27,7 @@ export class Service {
           content,
           featuredImage,
           status,
-          userId,
+          user,
         }
       );
     } catch (error) {

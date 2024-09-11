@@ -2,7 +2,7 @@ import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {useDispatch} from 'react-redux'
 import authService from '../appWrite/auth.service'
-import { Form, Link, Navigate } from 'react-router-dom'
+import { Form, Link, Navigate,useNavigate  } from 'react-router-dom'
 import {login} from '../store/authSlice'
 import {Button, Input, Logo} from './index'
 
@@ -25,7 +25,8 @@ function Signup() {
                 }
             }
         } catch (error) {
-            setError(error.message)
+            console.error(error)
+            setError(error.message.replace("param",""))
         }
     }
   return (
@@ -53,7 +54,7 @@ function Signup() {
                         type="text"
                         label="Full Name"
                         placeholder = "Enter your full name"
-                        {...register("name",{required:true})} />
+                        {...register("name", {required:true})} />
 
                         <Input 
                         type="email"
@@ -72,9 +73,9 @@ function Signup() {
                             type="password"
                             lable="Password"
                             placeholder="Enter your password"
-                            {...register("password"),{
+                            {...register("password",{
                                 required:true
-                            }}
+                            })}
                             />
                         <Button type="submit" className='w-full'>Create Account</Button> 
                     </div>

@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Link, matchPath, useNavigate} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import {login as authLogin} from '../store/authSlice'
 import {Button, Input, Logo} from './index'
 import {useDispatch} from 'react-redux'
@@ -16,9 +16,18 @@ function Login() {
     const login = async (data)=> {
         setError("")
         try {
+
+            // Check for an active session
+            const activeSession = await authService.checkActiveSession();
+
+            if (activeSession) {
+                // Delete the active sessions if one exists
+                await authService.deleteSessions();
+            }
+
             const session = await authService.login(data)
             if(session) {
-                const userData = await authService.getUserData()
+                const userData = await authService.getCurrentUser()
                 if(userData) {
                     dispatch(authLogin({userData}))
                     navigate("/")
@@ -70,9 +79,9 @@ function Login() {
                 type="password"
                 label="Password"                
                 placeholder="Enter your password"
-                {...register("password"),{
+                {...register("password",{
                     required:true
-                }}
+                })}
                 />
 
                 <Button type="submit" className='w-full'>Sign In</Button>

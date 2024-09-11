@@ -52,7 +52,9 @@ export class AuthService {
 
   async getCurrentUser() {
     try {
-      return await this.account.get();
+      const current = await this.account.get();
+
+      return current;
     } catch (error) {
       console.error(`Error getting current user: ${error.message}`);
       if (error.cause) {
@@ -61,6 +63,39 @@ export class AuthService {
         );
       }
       throw error;
+    }
+  }
+
+  async checkActiveSession() {
+    try {
+      const session = await this.account.getSession("current"); // Get the current session
+      return session !== null; // Return true if there is an active session
+    } catch (error) {
+      // If there's an error (e.g., no active session), handle it appropriately
+      if (error.code === 401) {
+        return false; // No active session
+      }
+      throw error; // Re-throw other unexpected errors
+    }
+  }
+
+  // Function to delete all sessions for the current user
+
+  async deleteSessions() {
+    try {
+      // Get the list of all sessions
+      const sessions = await this.account.listSessions();
+
+      // Delete each session
+      await Promise.all(
+        sessions.sessions.map(async (session) => {
+          await this.account.deleteSession(session.$id);
+        })
+      );
+      console.log("All sessions deleted successfully");
+    } catch (error) {
+      console.error("Error deleting sessions:", error.message);
+      throw error; // Re-throw the error for further handling
     }
   }
 
